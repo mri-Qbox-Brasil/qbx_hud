@@ -1,0 +1,33 @@
+{
+    "notify": {
+        "hud_settings_loaded": "Configurações do HUD Carregadas!",
+        "hud_restart": "HUD Reiniciando!",
+        "hud_start": "HUD Iniciado!",
+        "hud_command_info": "Este comando redefine suas configurações atuais do HUD!",
+        "load_square_map": "Carregando Mapa Quadrado...",
+        "loaded_square_map": "Mapa Quadrado Carregado!",
+        "load_circle_map": "Carregando Mapa Circular...",
+        "loaded_circle_map": "Mapa Circular Carregado!",
+        "cinematic_on": "Modo Cinemático Ligado!",
+        "cinematic_off": "Modo Cinemático Desligado!",
+        "engine_on": "Motor Ligado!",
+        "engine_off": "Motor Desligado!",
+        "low_fuel": "Nível de Combustível Baixo!",
+        "access_denied": "Você não está autorizado!",
+        "stress_gain": "Sentindo-se mais estressado!",
+        "stress_removed": "Sentindo-se mais relaxado!"
+    },
+    "info": {
+        "open_menu": "Abrir Menu"
+    },
+    "commands": {
+        "cash": "dinheiro",
+        "bank": "banco",
+        "dev": "dev",
+        "help": {
+            "cash": "Verificar Saldo em Dinheiro",
+            "bank": "Verificar Saldo Bancário",
+            "dev": "Ativar/Desativar Modo Desenvolvedor"
+        }
+    }
+}
