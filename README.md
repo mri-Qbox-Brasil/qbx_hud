@@ -1,32 +1,72 @@
+![title](https://cdn.discordapp.com/attachments/1027004645912088686/1300262386011476019/hud.jpg?ex=67203336&is=671ee1b6&hm=19669587a83114d4410f36a00714c6b553693688ae5788517dd80ce8461979bc&)
 
-# Things you should know:
-* To open the menu in-game the **default key** is **"I"** or you can type **"/menu"**
-* Your settings will **always** be **stored locally**, so even if you delete the resource it **will** keep your current settings. The **only** way you can wipe the local storage sucessfully is by clicking the **"Reset Settings"** button on the in-game menu
-(comes with new open menu sound, close menu sound, click menu sound)
-* If you receive ```attempt to index a nil value (global 'Lang')``` in your F8 console, the fastest way you can fix that issue is by downloading a new version via txAdminRecipe but if you are unable to do that because of the progress you’ve made on your existing build; you’ll have to unfortunately go through and download each one from the GitHub which I do not recommend. Save yourself a lot of time and pain by just downloading the recipe!
+# qbx_hud
 
-# FAQ
-##
-**Q:** Why do my borders not align with the maps?
+Shows UI elements such as health, hunger, thirst, etc.
 
-**A:** Most of the time it generally means your safezone is not set to default in your GTA settings. (Settings/Display/"Restore Defaults")
-##
+## Custom indicators
 
-##
-**Q:** How do I enable dev mode?
+Client resources can add circular indicators alongside the player HUD:
 
-**A:** Simple! All you have to do is type /admin and navigate through the menu to the last section called "Developer Options" and inside there you should see "Dev Mode", this will keep you invincible and add a cool developer icon in your circles/radials 
-##
+```lua
+exports.qbx_hud:AddCustomIndicator({
+    id = 'example:effect',
+    icon = 'fas fa-pills',
+    color = '#ff0000',
+    value = 75,
+    label = 'Effect level',
+    alwaysShow = false,
+})
+exports.qbx_hud:UpdateCustomIndicator('example:effect', 50, '#ff9900')
+exports.qbx_hud:RemoveCustomIndicator('example:effect')
+```
 
-##
-**Q:** What does the purple circle/radial do?
+`AddCustomIndicator`, `UpdateCustomIndicator`, and `RemoveCustomIndicator` return
+`true` on success and `false` for invalid arguments, missing indicators, or an ID
+owned by another resource. Re-adding an ID from the same resource replaces all its
+settings. Use a unique ID (up to 64 characters); icon, color, and label strings
+are limited to 128 characters. Only `id` is required when adding an indicator.
+Defaults are a white circle, value `0`, the ID as its label, and `alwaysShow = false`.
+Values must be finite numbers and are clamped to `0`–`100`.
 
-**A:** That is your harness indicator! When you have the item "harness" in your inventory and while in a vehicle it will appear. Also, when you use your item "harness", the circle/radial will reflect the amount of uses left and decrease overtime.
-##
+An indicator is hidden at `0` unless `alwaysShow` is `true`; the normal player HUD
+visibility still applies. The label is available as a tooltip and accessibility
+label. `GetCustomIndicators()` returns a snapshot keyed by ID; changing that table
+does not update the HUD. Indicators are removed when their owning resource stops
+or the player logs out. Add them again for a new character session or when
+`qbx_hud` restarts. Indicators added before the browser is ready are synchronized
+once the HUD mounts.
 
-# Previews
-### menu config (this is just a preview more options included than what is shown here)
-![menu](https://media.discordapp.net/attachments/1118131412097310790/1133084683333287966/oBPvnf50cK8W6Z.png)
+## Features
+
+### Player HUDs
+- Hunger
+- Thirst
+- Health
+- Voice Volume
+- Armor
+- Stamina
+- Stress
+- Oxygen
+- Parachute
+- Radio
+- Money
+
+### Vehicle HUDs
+- Altitude
+- Speed
+- Nitro
+- Harness Health
+- Seatbelt Status
+- Engine Health
+- Fuel
+
+### Settings Menu
+Each player can customize the look and feel of their own HUD through a settings menu.
+The **default key** is **"I"**, but each player can rebind this. One can also open the settings menu using **"/menu"**
+
+## Previews
+
 ### all radials
 ![all radials](https://user-images.githubusercontent.com/91661118/143668930-e9475c53-284c-4054-ad9c-88aa98f76768.png)
 ### dead health

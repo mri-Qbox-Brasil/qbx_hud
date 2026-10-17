@@ -89,13 +89,20 @@ AddEventHandler('onResourceStart', function(resourceName)
 end)
 
 -- Callbacks & Events
-RegisterCommand('menu', function()
-    Wait(50)
+local function settingsMenu()
     if showMenu then return end
     SetNuiFocus(true, true)
     SendNUIMessage({action = 'open'})
     showMenu = true
-end, false)
+end
+
+lib.addKeybind({
+    name = 'hud_menu',
+    description = locale('info.open_menu'),
+    defaultKey = config.menuKey,
+    defaultMapper = 'keyboard',
+    onPressed = settingsMenu,
+})
 
 RegisterNUICallback('closeMenu', function(_, cb)
     Wait(50)
@@ -103,8 +110,6 @@ RegisterNUICallback('closeMenu', function(_, cb)
     SetNuiFocus(false, false)
     cb('ok')
 end)
-
-RegisterKeyMapping('menu', locale('info.open_menu'), 'keyboard', config.menuKey)
 
 -- Reset hud
 local function restartHud()
@@ -127,11 +132,10 @@ RegisterNUICallback('restartHud', function(_, cb)
     cb('ok')
 end)
 
-RegisterCommand('resethud', function(_, cb)
+RegisterCommand('resethud', function()
     Wait(50)
     restartHud()
-    cb('ok')
-end)
+end, false)
 
 RegisterNUICallback('resetStorage', function(_, cb)
     Wait(50)
@@ -794,29 +798,31 @@ RegisterNetEvent('hud:client:OnMoneyChange', function(type, amount, isMinus)
 end)
 
 -- Stress Gain
-CreateThread(function() -- Speeding
-    while true do
-        if LocalPlayer.state.isLoggedIn then
-            if cache.vehicle then
-                local vehClass = GetVehicleClass(cache.vehicle)
-                local speed = GetEntitySpeed(cache.vehicle) * speedMultiplier
+if config.stress.enableStress then
+    CreateThread(function() -- Speeding
+        while true do
+            if LocalPlayer.state.isLoggedIn then
+                if cache.vehicle then
+                    local vehClass = GetVehicleClass(cache.vehicle)
+                    local speed = GetEntitySpeed(cache.vehicle) * speedMultiplier
 
-                if vehClass ~= 13 and vehClass ~= 14 and vehClass ~= 15 and vehClass ~= 16 and vehClass ~= 21 then
-                    local stressSpeed
-                    if vehClass == 8 then
-                        stressSpeed = config.stress.minForSpeeding
-                    else
-                        stressSpeed = LocalPlayer.state?.seatbelt and config.stress.minForSpeeding or config.stress.minForSpeedingUnbuckled
-                    end
-                    if speed >= stressSpeed then
-                        TriggerServerEvent('hud:server:GainStress', math.random(1, 3))
+                    if vehClass ~= 13 and vehClass ~= 14 and vehClass ~= 15 and vehClass ~= 16 and vehClass ~= 21 then
+                        local stressSpeed
+                        if vehClass == 8 then
+                            stressSpeed = config.stress.minForSpeeding
+                        else
+                            stressSpeed = LocalPlayer.state?.seatbelt and config.stress.minForSpeeding or config.stress.minForSpeedingUnbuckled
+                        end
+                        if speed >= stressSpeed then
+                            TriggerServerEvent('hud:server:GainStress', math.random(1, 3))
+                        end
                     end
                 end
             end
+            Wait(10000)
         end
-        Wait(10000)
-    end
-end)
+    end)
+end
 
 local function isWhitelistedWeaponStress(weapon)
     if weapon then
@@ -851,7 +857,7 @@ AddEventHandler('ox_inventory:currentWeapon', function(currentWeapon)
 
     if not currentWeapon then return end
 
-    startWeaponStressThread(currentWeapon.name)
+    startWeaponStressThread(currentWeapon.hash)
 end)
 
 -- Stress Screen Effects
@@ -907,14 +913,6 @@ CreateThread(function()
             TriggerScreenblurFadeOut(1000.0)
         end
         Wait(effectInterval)
-    end
-end)
-
--- Minimap update
-CreateThread(function()
-    while true do
-        SetBigmapActive(false, false)
-        Wait(500)
     end
 end)
 
@@ -992,9 +990,9 @@ CreateThread(function()
         local show = true
         local camRot = GetGameplayCamRot(0)
         if sharedConfig.menu.isCompassFollowChecked then
-            heading = math.round(360.0 - ((camRot.z + 360.0) % 360.0))
+            heading = qbx.math.round(360.0 - ((camRot.z + 360.0) % 360.0))
         else
-            heading = math.round(360.0 - GetEntityHeading(cache.ped))
+            heading = qbx.math.round(360.0 - GetEntityHeading(cache.ped))
         end
 		if heading == 360 then heading = 0 end
         if heading ~= lastHeading then
