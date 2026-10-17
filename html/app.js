@@ -719,24 +719,54 @@ const playerHud = {
       hungerColor: "",
       healthColor: "",
       thirstColor: "",
+      customIndicators: [],
     };
   },
   
-  destroyed() {
+  computed: {
+    visibleCustomIndicators() {
+      return this.customIndicators.filter((indicator) => indicator.alwaysShow || indicator.value > 0);
+    },
+  },
+  beforeUnmount() {
     window.removeEventListener("message", this.listener);
   },
   mounted() {
-    this.listener = window.addEventListener("message", (event) => {
+    this.listener = (event) => {
       if (event.data.action === "hudtick") {
         this.hudTick(event.data);
-      } 
-      // else if(event.data.update) {
-      //   eval(event.data.action + "(" + event.data.show + ')')
-      // }
-    });
+      } else if (event.data.action === "addCustomIndicator") {
+        this.addCustomIndicator(event.data.indicator);
+      } else if (event.data.action === "updateCustomIndicator") {
+        this.updateCustomIndicator(event.data.id, event.data.value, event.data.color);
+      } else if (event.data.action === "removeCustomIndicator") {
+        this.removeCustomIndicator(event.data.id);
+      } else if (event.data.action === "setCustomIndicators") {
+        this.customIndicators = Object.values(event.data.indicators);
+      }
+    };
+    window.addEventListener("message", this.listener);
+    $.post(`https://${GetParentResourceName()}/customIndicatorsReady`, JSON.stringify({}));
     Config = {};
   },
   methods: {
+    addCustomIndicator(indicator) {
+      const index = this.customIndicators.findIndex((item) => item.id === indicator.id);
+      if (index === -1) {
+        this.customIndicators.push({ ...indicator });
+      } else {
+        this.customIndicators.splice(index, 1, { ...indicator });
+      }
+    },
+    updateCustomIndicator(id, value, color) {
+      const indicator = this.customIndicators.find((item) => item.id === id);
+      if (!indicator) return;
+      indicator.value = value;
+      if (color !== undefined) indicator.color = color;
+    },
+    removeCustomIndicator(id) {
+      this.customIndicators = this.customIndicators.filter((indicator) => indicator.id !== id);
+    },
     hudTick(data) {
       this.show = data.show;
       this.health = data.health;

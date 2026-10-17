@@ -1,6 +1,14 @@
+lib.versionCheck('Qbox-project/qbx_hud')
+
 local config = require 'config.server'
 local sharedConfig = require 'config.shared'
 local resetStress = false
+
+---@param amount any
+---@return boolean
+local function isValidStressAmount(amount)
+    return type(amount) == 'number' and amount == amount and amount > 0 and amount <= 100
+end
 
 -- Handlers
 
@@ -21,6 +29,9 @@ end)
 -- Network Events
 
 RegisterNetEvent('hud:server:GainStress', function(amount)
+    if not sharedConfig.stress.enableStress then return end
+    if not isValidStressAmount(amount) then return end
+
     local src = source
     local player = exports.qbx_core:GetPlayer(src)
     local newStress
@@ -43,6 +54,9 @@ RegisterNetEvent('hud:server:GainStress', function(amount)
 end)
 
 RegisterNetEvent('hud:server:RelieveStress', function(amount)
+    if not sharedConfig.stress.enableStress then return end
+    if not isValidStressAmount(amount) then return end
+
     local src = source
     local player = exports.qbx_core:GetPlayer(src)
     local newStress
